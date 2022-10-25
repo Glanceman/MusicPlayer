@@ -1,5 +1,5 @@
 # SM2278-MusicPlayer
-
-npm install
-
-npm run dev
+Install dependency
+>npm install
+Run the local server
+>npm run dev
