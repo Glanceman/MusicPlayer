@@ -7,10 +7,15 @@ let imgs = {};
 let volSlider;
 let progressSlider;
 let panSlider;
+
 let fft;
+let amplitude;
+let fadingCircles = [];
+
 function preload() {
     let song = loadSound('./assets/bensound-sadday.mp3');
     let song1 = loadSound('./assets/bensound-enigmatic.mp3');
+    let song2 = loadSound('./assets/eye-water.mp3');
     songs.push(
         {
             id: 0,
@@ -18,9 +23,14 @@ function preload() {
             musicSequence: song,
         },
         {
-            id: 0,
+            id: 1,
             name: "Enigmatic",
             musicSequence: song1,
+        },
+        {
+            id: 2,
+            name: "eye-water",
+            musicSequence: song2,
         },
     );
     imgs.playbtn = loadImage('./assets/play-button.png');
@@ -31,7 +41,6 @@ function preload() {
 }
 
 function setup() {
-
     createCanvas(...canvasSize);
     // btn=new Clickable();
     // btn.locate(width/2, height*9/10);
@@ -96,48 +105,71 @@ function setup() {
         songs[currentSongIndex].musicSequence.pan(panSlider.value())
     })
 
-    progressSlider=createSlider(0, 1, 1, 0.001);
-    progressSlider.position(width / 2-width*0.8*0.5, height * 8 / 10)
-    progressSlider.style("width", width*0.8+'px');
+    progressSlider = createSlider(0, 1, 1, 0.001);
+    progressSlider.position(width / 2 - width * 0.8 * 0.5, height * 8 / 10)
+    progressSlider.style("width", width * 0.8 + 'px');
     console.log(progressSlider);
-    
-    fft = new p5.FFT(0.8,64);
+
+    fft = new p5.FFT(0.8, 256);
+    amplitude = new p5.Amplitude();
 
 }
 
 function Update() {
     //update music progress
-    let currentPosition=songs[currentSongIndex].musicSequence.currentTime();
-    progressSlider.value(map(currentPosition,0,songs[currentSongIndex].musicSequence.duration(),0,1));
+    let currentPosition = songs[currentSongIndex].musicSequence.currentTime();
+    progressSlider.value(map(currentPosition, 0, songs[currentSongIndex].musicSequence.duration(), 0, 1));
     angleMode(DEGREES);
-    let spectrum = fft.analyze();
-    push()
-    noFill();
-    beginShape();
-    strokeWeight(2);
-    stroke(69, 179, 224);
-    translate(width/2,height/2)
-    for(let i=0;i<360;i+=4){
-        let spectrumIndex=round(map(i,0,360,0,spectrum.length));
-        let r= map(spectrum[spectrumIndex],0,255,1,min(width,height)*0.5)+20;
-        let x =r* cos(i);
-        let y= r*sin(i);
-        vertex(x,y);
 
+    let level = amplitude.getLevel() * 5;
+    if (level > 0.135 && frameCount % 60 == 0) {
+        let maxSize = height * level;
+        if (maxSize > 350) {
+            maxSize = 350
+        }
+        p = new fadingCircle(random(1, width), random(1, height), maxSize);
+        fadingCircles.push(p);
     }
-    endShape(CLOSE);
-    pop();
+    //console.log(forceField);
 }
 
 function draw() {
     let bgcolor = [223, 248, 250];
     background(...bgcolor);
     Update();
+    //VFX
+    for (let i = fadingCircles.length - 1; i >= 0; i--) {
+        fadingCircles[i].draw();
+        if (fadingCircles[i].isFinish()) {
+            fadingCircles.splice(i, 1);
+        }
+    }
+    
+    let spectrum = fft.analyze();
+    push()
+    noFill();
+    beginShape();
+    strokeWeight(2);
+    stroke(69, 179, 224);
+    translate(width / 2, height / 2)
+    for (let i = 0; i < spectrum.length; i++) {
+        let angle = round(map(i, 0, spectrum.length, 0, 360));
+        let level = amplitude.getLevel() * 100;
+        let r = map(spectrum[i], 0, 255, 1, min(width, height) * 0.5) + level;
+        let x = r * cos(angle);
+        let y = r * sin(angle);
+        vertex(x, y);
+
+    }
+    endShape(CLOSE);
+    pop();
+
+    //UI
     push()
     textSize(64);
     textAlign(CENTER)
     fill(157, 234, 240);
-    text(songs[currentSongIndex].name, width/2, height/10);
+    text(songs[currentSongIndex].name, width / 2, height / 10);
     pop()
     btns.forEach((btn) => {
         btn.draw();
