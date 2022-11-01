@@ -12,6 +12,9 @@ let fft;
 let amplitude;
 let fadingCircles = [];
 
+let scale_L=0;
+let scale_R=0;
+
 function preload() {
     let song = loadSound('./assets/bensound-sadday.mp3');
     let song1 = loadSound('./assets/bensound-enigmatic.mp3');
@@ -152,16 +155,35 @@ function draw() {
     strokeWeight(2);
     stroke(69, 179, 224);
     translate(width / 2, height / 2)
+    let level_L = amplitude.getLevel(0) * 100;
+    scale_L =lerp(scale_L, map(amplitude.getLevel(0),0,0.2,0,1),0.1)
     for (let i = 0; i < spectrum.length; i++) {
         let angle = round(map(i, 0, spectrum.length, 0, 360));
-        let level = amplitude.getLevel() * 100;
-        let r = map(spectrum[i], 0, 255, 1, min(width, height) * 0.5) + level;
+        let r = map(spectrum[i], 0, 255, 1, min(width, height) * 0.5)*scale_L + level_L;
         let x = r * cos(angle);
         let y = r * sin(angle);
         vertex(x, y);
 
     }
     endShape(CLOSE);
+    pop()
+    push()
+    noFill()
+    beginShape();
+    strokeWeight(2);
+    stroke(135, 235, 164);
+    translate(width / 2, height / 2)
+    let level_R = amplitude.getLevel(1) * 100;
+    scale_R =lerp(scale_R, map(amplitude.getLevel(1),0,0.2,0,1),0.1)
+    for (let i = 0; i < spectrum.length; i++) {
+        let angle = round(map(i, 0, spectrum.length, 0, 360));
+        let r = map(spectrum[i], 0, 255, 1, min(width, height) * 0.5)*scale_R + level_R;
+        let x = -r * cos(angle);
+        let y = r * sin(angle);
+        vertex(x, y);
+    }
+    endShape(CLOSE);
+    
     pop();
 
     //UI
