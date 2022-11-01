@@ -160,7 +160,7 @@ function draw() {
     for (let i = 0; i < spectrum.length; i++) {
         let angle = round(map(i, 0, spectrum.length, 0, 360));
         let r = map(spectrum[i], 0, 255, 1, min(width, height) * 0.5)*scale_L + level_L;
-        let x = r * cos(angle);
+        let x = -r * cos(angle);
         let y = r * sin(angle);
         vertex(x, y);
 
@@ -178,7 +178,7 @@ function draw() {
     for (let i = 0; i < spectrum.length; i++) {
         let angle = round(map(i, 0, spectrum.length, 0, 360));
         let r = map(spectrum[i], 0, 255, 1, min(width, height) * 0.5)*scale_R + level_R;
-        let x = -r * cos(angle);
+        let x = r * cos(angle);
         let y = r * sin(angle);
         vertex(x, y);
     }
