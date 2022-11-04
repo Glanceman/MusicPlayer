@@ -15,6 +15,8 @@ let fadingCircles = [];
 let scale_L=0;
 let scale_R=0;
 
+let changePosition=false;
+
 function preload() {
     let song = loadSound('./assets/bensound-sadday.mp3');
     let song1 = loadSound('./assets/bensound-enigmatic.mp3');
@@ -111,6 +113,19 @@ function setup() {
     progressSlider = createSlider(0, 1, 1, 0.001);
     progressSlider.position(width / 2 - width * 0.8 * 0.5, height * 8 / 10)
     progressSlider.style("width", width * 0.8 + 'px');
+    progressSlider.mousePressed(()=>{
+        changePosition=true;
+        console.log("Slider Press")
+    })
+    progressSlider.mouseMoved(()=>{
+        if(changePosition==false) return;
+       
+    })
+    progressSlider.mouseReleased(()=>{
+        changePosition=false;
+        let duration = songs[currentSongIndex].musicSequence.duration();
+        songs[currentSongIndex].musicSequence.jump(map(progressSlider.value(),0,1,0,duration));
+    })
     console.log(progressSlider);
 
     fft = new p5.FFT(0.8, 256);
@@ -121,7 +136,9 @@ function setup() {
 function Update() {
     //update music progress
     let currentPosition = songs[currentSongIndex].musicSequence.currentTime();
-    progressSlider.value(map(currentPosition, 0, songs[currentSongIndex].musicSequence.duration(), 0, 1));
+    if(changePosition==false){
+        progressSlider.value(map(currentPosition, 0, songs[currentSongIndex].musicSequence.duration(), 0, 1));
+    }
     angleMode(DEGREES);
 
     let level = amplitude.getLevel() * 5;
