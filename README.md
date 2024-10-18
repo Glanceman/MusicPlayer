@@ -5,4 +5,5 @@ Install dependency
 Run the local server  
 >npm run dev
 
-[Sample Link](https://glanceman.github.io/SM2278-MusicPlayer/)
+[Sample Link](https://glanceman.github.io/MusicPlayer/)
+
